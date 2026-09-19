@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "792163163483",
+    "project_id": "hams-53de9",
+    "storage_bucket": "hams-53de9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792163163483:android:fc849eb9d6d96fd2cc4e7e",
+        "android_client_info": {
+          "package_name": "Com.Hams"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEQAgN3JWmdU2IuUePcN1KMSvN_DFUg8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
