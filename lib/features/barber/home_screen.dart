@@ -301,9 +301,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                               _buildSearchBar(),
                               const SizedBox(height: 16),
                               _buildLocationBanner(),
-                              const SizedBox(height: 24),
-                              _buildHowItWorksBanner(),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 20),
                               _buildSortHeader(),
                               const SizedBox(height: 12),
                             ],
@@ -531,14 +529,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-          color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
-
   Widget _buildSortHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -549,11 +539,11 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         if (_userPosition != null)
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.near_me, color: Color(0xFFD4AF37), size: 14),
-              const SizedBox(width: 4),
-              const Text('الأقرب أولاً',
+              Icon(Icons.near_me, color: Color(0xFFD4AF37), size: 14),
+              SizedBox(width: 4),
+              Text('الأقرب أولاً',
                   style: TextStyle(color: Color(0xFFD4AF37), fontSize: 12)),
             ],
           ),
@@ -561,75 +551,33 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     );
   }
 
-  Widget _buildHowItWorksBanner() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFD4AF37).withOpacity(0.15),
-            const Color(0xFFB8860B).withOpacity(0.08),
-          ],
-        ),
-        border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF37).withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.confirmation_number_outlined,
-                    color: Color(0xFFD4AF37), size: 20),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'كيف يعمل نظام الدور؟',
-                style: TextStyle(
-                    color: Color(0xFFD4AF37),
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const _StepRow(number: '1', text: 'احجز موعدك واحصل على رقم دورك'),
-          const SizedBox(height: 8),
-          const _StepRow(number: '2', text: 'تابع دورك مباشرة من التطبيق'),
-          const SizedBox(height: 8),
-          const _StepRow(number: '3', text: 'استقبل إشعاراً فور اقتراب دورك'),
-        ],
-      ),
-    );
-  }
-
   String _getTodayWorkingHours(Map<String, dynamic> hours) {
-    if (hours.isEmpty) return '';
+    if (hours.isEmpty) return 'مفتوح 24 ساعة';
     final dayNames = {
       1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday',
       5: 'friday', 6: 'saturday', 7: 'sunday'
     };
     final today = dayNames[DateTime.now().weekday];
     final dayData = hours[today];
-    if (dayData == null || dayData is! Map) return '';
+    if (dayData == null || dayData is! Map) return 'مفتوح 24 ساعة';
     final isOpen = dayData['is_open'] ?? true;
     if (!isOpen) return 'مغلق اليوم';
     final openTime = dayData['open'] ?? dayData['start'] ?? '';
     final closeTime = dayData['close'] ?? dayData['end'] ?? '';
-    if (openTime.toString().isEmpty || closeTime.toString().isEmpty) return '';
+    if (openTime.toString().isEmpty || closeTime.toString().isEmpty) return 'مفتوح 24 ساعة';
 
-    // تحويل 10:00 إلى 10
+    final openStr = openTime.toString().trim();
+    final closeStr = closeTime.toString().trim();
+    if ((openStr == '00:00' || openStr == '0:00') &&
+        (closeStr == '23:59' || closeStr == '24:00' || closeStr == '00:00')) {
+      return 'مفتوح 24 ساعة';
+    }
+
     String formatTime(String time) {
       if (time.endsWith(':00')) return time.substring(0, time.length - 3);
       return time;
     }
-    return 'متاح من ${formatTime(openTime.toString())} لـ ${formatTime(closeTime.toString())}';
+    return 'متاح من ${formatTime(openStr)} لـ ${formatTime(closeStr)}';
   }
 
   Widget _buildBarberCard(Barbershop shop, int index) {
@@ -655,233 +603,338 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           );
         },
         child: Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          child: Stack(
-            children: [
-              GlassBox(
-                borderRadius: 20,
-                opacity: 0.05,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          width: 90,
-                          height: 90,
-                          color: const Color(0xFFD4AF37).withOpacity(0.1),
-                          child: shop.logoUrl != null && shop.logoUrl!.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: shop.logoUrl!,
-                                  fit: BoxFit.cover,
-                                  memCacheWidth: 200, 
-                                  placeholder: (context, url) => Container(
-                                    color: Colors.white.withOpacity(0.05),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFD4AF37)),
-                                    ),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.store, color: Color(0xFFD4AF37), size: 40),
-                                )
-                              : const Icon(Icons.store, color: Color(0xFFD4AF37), size: 40),
+          margin: const EdgeInsets.only(bottom: 18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF222222),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.35),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Large Top Banner Image (تكبير بنر المحل من بره)
+                Stack(
+                  children: [
+                    SizedBox(
+                      height: 160,
+                      width: double.infinity,
+                      child: shop.logoUrl != null && shop.logoUrl!.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: shop.logoUrl!,
+                              fit: BoxFit.cover,
+                              memCacheWidth: 600,
+                              placeholder: (context, url) => Container(
+                                color: Colors.white.withOpacity(0.05),
+                                child: const Center(
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFD4AF37)),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.white.withOpacity(0.05),
+                                child: const Center(
+                                  child: Icon(Icons.store, color: Color(0xFFD4AF37), size: 50),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: const Color(0xFFD4AF37).withOpacity(0.12),
+                              child: const Center(
+                                child: Icon(Icons.store, color: Color(0xFFD4AF37), size: 50),
+                              ),
+                            ),
+                    ),
+                    // Gradient overlay at bottom of banner
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.15),
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.75),
+                            ],
+                            stops: const [0.0, 0.45, 1.0],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                    ),
+                    // Status Badge (مفتوح / مغلق)
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: (shop.isOpen ? Colors.green : Colors.redAccent).withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              shop.isOpen ? 'مفتوح' : 'مغلق',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Favorite button
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: GestureDetector(
+                        onTap: () => _toggleFavorite(shop.id),
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.redAccent : Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Nearest tag if applicable
+                    if (isNearest)
+                      Positioned(
+                        bottom: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD4AF37),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.location_on, color: Colors.black, size: 12),
+                              SizedBox(width: 3),
+                              Text(
+                                'الأقرب إليك',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    // Ranking badge
+                    if (_userPosition != null && index < 3)
+                      Positioned(
+                        bottom: 12,
+                        left: 12,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: index == 0
+                                ? const Color(0xFFD4AF37)
+                                : index == 1
+                                    ? Colors.grey[300]
+                                    : Colors.brown[300],
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                // 2. Card Content (Below Banner)
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Shop Details (Left)
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              displayName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
                             Row(
                               children: [
+                                const Icon(Icons.location_on_outlined, color: Colors.white38, size: 13),
+                                const SizedBox(width: 3),
                                 Expanded(
                                   child: Text(
-                                    displayName,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 2,
+                                    shop.address,
+                                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: () => _toggleFavorite(shop.id),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
-                                    child: Icon(
-                                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                                      color: isFavorite ? Colors.redAccent : Colors.white38,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
                               ],
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              shop.address,
-                              style: const TextStyle(color: Colors.white54, fontSize: 12),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
                                 const Icon(Icons.star_rounded, color: Color(0xFFD4AF37), size: 16),
                                 const SizedBox(width: 3),
-                                Text(shop.rating.toStringAsFixed(1),
-                                    style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                                const SizedBox(width: 10),
-                                Container(
-                                  width: 7,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: shop.isOpen ? Colors.green : Colors.redAccent,
+                                Text(
+                                  shop.rating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                const SizedBox(width: 8),
+                                const Text('•', style: TextStyle(color: Colors.white24)),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.access_time, color: Colors.white38, size: 13),
                                 const SizedBox(width: 4),
                                 Text(
-                                  shop.isOpen ? 'مفتوح' : 'مغلق',
-                                  style: TextStyle(
-                                    color: shop.isOpen ? Colors.green : Colors.redAccent,
-                                    fontSize: 12,
+                                  _getTodayWorkingHours(shop.workingHours),
+                                  style: const TextStyle(
+                                    color: Color(0xFFD4AF37),
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                if (distanceText.isNotEmpty) ...[
-                                  const Spacer(),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFD4AF37).withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: const Color(0xFFD4AF37).withOpacity(0.4)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.near_me_rounded,
-                                            color: Color(0xFFD4AF37), size: 13),
-                                        const SizedBox(width: 3),
-                                        Text(distanceText,
-                                            style: const TextStyle(
-                                                color: Color(0xFFD4AF37),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
                               ],
                             ),
-                            if (_getTodayWorkingHours(shop.workingHours).isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const Icon(Icons.access_time, color: Colors.white54, size: 13),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    _getTodayWorkingHours(shop.workingHours),
-                                    style: const TextStyle(color: Colors.white54, fontSize: 11),
-                                  ),
-                                ],
-                              ),
-                            ],
                           ],
                         ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // "احجز الآن" Button + Distance right below it (اكتب فوق المسافه احجز الان)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // "احجز الآن" Gold Pill Button
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5BD47),
+                              borderRadius: BorderRadius.circular(25),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFF5BD47).withOpacity(0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'احجز الآن',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                SizedBox(width: 4),
+                                Icon(Icons.arrow_forward_ios, size: 12, color: Colors.black),
+                              ],
+                            ),
+                          ),
+
+                          // Distance directly under "احجز الآن"
+                          if (distanceText.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.near_me_rounded, color: Color(0xFFD4AF37), size: 12),
+                                const SizedBox(width: 3),
+                                Text(
+                                  distanceText,
+                                  style: const TextStyle(
+                                    color: Color(0xFFD4AF37),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
                 ),
-              ),
-              if (isNearest)
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4AF37),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.location_on, color: Colors.black, size: 11),
-                        SizedBox(width: 2),
-                        Text('الأقرب',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                ),
-              if (_userPosition != null && index < 3)
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: index == 0
-                          ? const Color(0xFFD4AF37)
-                          : index == 1
-                              ? Colors.grey[400]
-                              : Colors.brown[300],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                            color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StepRow extends StatelessWidget {
-  final String number;
-  final String text;
-  const _StepRow({required this.number, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: const Color(0xFFD4AF37).withOpacity(0.2),
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.5)),
-          ),
-          child: Center(
-            child: Text(
-              number,
-              style: const TextStyle(
-                  color: Color(0xFFD4AF37),
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold),
+              ],
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        Text(text, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-      ],
+      ),
     );
   }
 }

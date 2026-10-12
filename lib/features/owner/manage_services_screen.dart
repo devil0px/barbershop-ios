@@ -109,7 +109,7 @@ class _ManageServicesScreenState extends State<ManageServicesScreen> {
                   keyboardType: TextInputType.number,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
-                    labelText: 'السعر (ريال)',
+                    labelText: 'السعر (جنيه)',
                     labelStyle: TextStyle(color: Colors.white60),
                     enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
                   ),
@@ -245,7 +245,7 @@ class _ManageServicesScreenState extends State<ManageServicesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(service['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text('${service['price']} ريال - ${service['duration']} دقيقة', style: const TextStyle(color: Colors.white60, fontSize: 13)),
+                            Text('${service['price']} جنيه - ${service['duration']} دقيقة', style: const TextStyle(color: Colors.white60, fontSize: 13)),
                           ],
                         ),
                       ),

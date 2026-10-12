@@ -337,7 +337,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       style: TextStyle(color: Colors.white54, fontSize: 14),
                     ),
                     Text(
-                      '${booking.totalPrice} \$',
+                      '${booking.totalPrice} جنيه',
                       style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],

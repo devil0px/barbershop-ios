@@ -95,8 +95,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             enableVibration: true,
             // ✅ Show on lock screen
             visibility: NotificationVisibility.public,
-            // ✅ Heads-up notification
-            fullScreenIntent: true,
             // ✅ Ticker text
             ticker: 'إشعار جديد من الصالون',
             // ✅ Notification category
@@ -127,12 +125,10 @@ void main() async {
     return true;
   };
 
-  // ✅ Register background handler BEFORE Firebase.initializeApp()
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await NotificationService.initialize();
   } catch (e) {
     debugPrint('Firebase initialization error: $e');

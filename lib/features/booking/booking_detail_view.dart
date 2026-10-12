@@ -289,7 +289,7 @@ class _BookingDetailViewState extends State<BookingDetailView> {
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Divider(color: Colors.white10),
             ),
-            _buildInfoRow(Icons.payments_outlined, 'إجمالي التكلفة', '${booking.totalPrice} \$', isGold: true),
+            _buildInfoRow(Icons.payments_outlined, 'إجمالي التكلفة', '${booking.totalPrice} جنيه', isGold: true),
           ],
         ),
       ),

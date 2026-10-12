@@ -1,6 +1,13 @@
 class ApiConstants {
+  // Application Version Info
+  static const int currentVersionCode = 7;
+  static const String currentVersionName = '2.2.2';
+
   // السيرفر البعيد
   static const String baseUrl = 'https://64.226.87.65.nip.io/api/v1';
+  
+  // App Version endpoint
+  static const String appVersion = '$baseUrl/app-version/';
   
   // WebSocket base URL
   static const String wsBaseUrl = 'wss://64.226.87.65.nip.io/ws';
@@ -12,6 +19,7 @@ class ApiConstants {
   static const String logout = '$baseUrl/accounts/logout/';
   static const String profile = '$baseUrl/accounts/profile/';
   static const String googleLogin = '$baseUrl/accounts/google-signin/';
+  static const String deviceToken = '$baseUrl/accounts/device-token/';
   
   // Barbershop endpoints
   static const String barbershops = '$baseUrl/barbershops/barbershops/';

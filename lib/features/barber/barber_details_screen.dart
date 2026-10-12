@@ -414,7 +414,7 @@ class _BarberDetailsScreenState extends State<BarberDetailsScreen> {
                       Row(
                         children: [
                           Text(
-                            '${service.price} \$',
+                            '${service.price} جنيه',
                             style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold),
                           ),
                           const Text(' • ', style: TextStyle(color: Colors.white24)),
@@ -652,7 +652,12 @@ class _BarberDetailsScreenState extends State<BarberDetailsScreen> {
                         Text(dayLabel, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                         Text(
                           isOpen && openTime.toString().isNotEmpty
-                              ? '$openTime - $closeTime'
+                              ? ((openTime.toString().trim() == '00:00' || openTime.toString().trim() == '0:00') &&
+                                      (closeTime.toString().trim() == '23:59' ||
+                                          closeTime.toString().trim() == '24:00' ||
+                                          closeTime.toString().trim() == '00:00')
+                                  ? 'مفتوح 24 ساعة'
+                                  : '$openTime - $closeTime')
                               : 'مغلق',
                           style: TextStyle(
                             color: isOpen ? const Color(0xFFD4AF37) : Colors.red.shade300,

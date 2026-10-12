@@ -402,7 +402,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(s.name, style: const TextStyle(color: Colors.white70)),
-                        Text('\$${s.price}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text('${s.price} جنيه', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   )),
@@ -411,7 +411,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('الإجمالي', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text('\$$total', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text('$total جنيه', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 20, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 40),

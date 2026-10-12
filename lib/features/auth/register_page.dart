@@ -15,8 +15,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _authRepository = AuthRepository();
   bool _isLoading = false;
@@ -30,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (_usernameController.text.isEmpty || _emailController.text.isEmpty || _firstNameController.text.isEmpty) {
+    if (_usernameController.text.isEmpty || _emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('يرجى ملء كافة الحقول الأساسية')),
       );
@@ -43,8 +41,8 @@ class _RegisterPageState extends State<RegisterPage> {
       email: _emailController.text,
       password: _passwordController.text,
       password2: _confirmPasswordController.text,
-      firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
+      firstName: '',
+      lastName: '',
       phoneNumber: _phoneController.text,
       userType: _userType,
     );
@@ -111,26 +109,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: _usernameController,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration('اسم المستخدم', Icons.person_outline),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _firstNameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration('الاسم الأول', Icons.abc),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _lastNameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration('اسم العائلة', Icons.abc),
-                    ),
-                  ),
-                ],
               ),
               const SizedBox(height: 16),
               TextField(

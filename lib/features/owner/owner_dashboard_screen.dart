@@ -401,7 +401,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
   Widget _buildStatsRow() {
     return Row(
       children: [
-        Expanded(child: _buildStatCard('دخل اليوم', '${_stats['today_income'] ?? 0} ر.س', Colors.blue, Icons.payments)),
+        Expanded(child: _buildStatCard('دخل اليوم', '${_stats['today_income'] ?? 0} ج.م', Colors.blue, Icons.payments)),
         const SizedBox(width: 16),
         Expanded(child: _buildStatCard('الحجوزات', '${_stats['total_bookings_count'] ?? 0}', Colors.green, Icons.calendar_today)),
       ],

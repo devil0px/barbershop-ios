@@ -5,6 +5,9 @@ import '../../features/auth/login_page.dart';
 import '../../features/auth/auth_repository.dart';
 import '../services/notification_service.dart';
 
+import '../services/version_check_service.dart';
+import 'update_required_screen.dart';
+
 /// Splash screen that checks session and routes accordingly.
 /// Customer  → HomeScreen (tab 0)
 /// Owner     → OwnerDashboard (tab 0, which shows dashboard for 'barber' user type)
@@ -43,6 +46,25 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   Future<void> _checkSession() async {
     if (!mounted) return;
+
+    // 🚀 Check app version requirement from server first
+    final versionResult = await VersionCheckService.checkVersion();
+    if (!mounted) return;
+
+    if (versionResult.isUpdateRequired) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => UpdateRequiredScreen(
+            title: versionResult.title,
+            message: versionResult.message,
+            storeUrl: versionResult.storeUrl,
+            buttonText: versionResult.buttonText,
+          ),
+        ),
+      );
+      return;
+    }
 
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');

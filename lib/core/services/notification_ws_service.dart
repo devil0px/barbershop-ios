@@ -67,10 +67,12 @@ class NotificationWsService {
 
   // ── Internal ───────────────────────────────────────────────────────────
 
-  void _doConnect() {
+  void _doConnect() async {
     if (_userId == null) return;
 
-    final wsUrl = Uri.parse('${ApiConstants.wsBaseUrl}/notifications/$_userId/');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token') ?? '';
+    final wsUrl = Uri.parse('${ApiConstants.wsBaseUrl}/notifications/$_userId/?token=$token');
     debugPrint('🔌 NotificationWsService: connecting to $wsUrl');
 
     try {

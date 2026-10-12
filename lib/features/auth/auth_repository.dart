@@ -390,7 +390,7 @@ class AuthRepository {
   Future<bool> registerDeviceToken(String token, String deviceType) async {
     try {
       final response = await _apiService.client.post(
-        '${ApiConstants.register}device-token/',
+        ApiConstants.deviceToken,
         data: {
           'token': token,
           'device_type': deviceType,

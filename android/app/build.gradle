@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.barber2shop"
-    compileSdk = 35
+    compileSdk = 36
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -56,11 +56,17 @@ android {
 
     defaultConfig {
         applicationId = "com.barber2shop"
-        minSdk = 23
-        targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 7
+        versionName = "2.2.2"
         multiDexEnabled true
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     buildTypes {

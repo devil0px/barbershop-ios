@@ -42,23 +42,29 @@ class NotificationService {
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    // 1. Request permission
-    NotificationSettings settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      // ✅ Request provisional for iOS silent notifications
-      provisional: false,
-    );
-
-    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-      debugPrint('User declined notification permission');
-      return;
-    }
-    debugPrint('✅ Notification permission granted');
-
-    // 2. Setup local notifications for foreground display
+    // 1. Setup local notifications and high importance channel FIRST
     await _setupLocalNotifications();
+
+    // 2. Request Android 13+ runtime POST_NOTIFICATIONS permission
+    try {
+      final androidPlugin = localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      await androidPlugin?.requestNotificationsPermission();
+    } catch (e) {
+      debugPrint('Android requestNotificationsPermission error: $e');
+    }
+
+    // 3. Request FCM messaging permission
+    try {
+      await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: true,
+      );
+    } catch (e) {
+      debugPrint('FCM requestPermission error: $e');
+    }
 
     // ✅ 3. CRITICAL: Set foreground notification presentation options
     // This ensures FCM shows notifications even when the app is in foreground on iOS
@@ -161,8 +167,6 @@ class NotificationService {
       color: const Color(0xFFD4AF37),
       playSound: true,
       enableVibration: true,
-      // ✅ Heads-up notification
-      fullScreenIntent: true,
       // ✅ Show on lock screen
       visibility: NotificationVisibility.public,
       // ✅ Show ticker text in status bar

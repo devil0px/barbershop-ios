@@ -51,24 +51,44 @@ class _EditShopScreenState extends State<EditShopScreen> {
     _latitude = widget.shop.latitude;
     _longitude = widget.shop.longitude;
 
-    // Initialize working hours from shop data
+    // Initialize working hours from shop data - defaults to 24/7 if not configured
     _workingHours = {};
     for (final day in _dayOrder) {
       final data = widget.shop.workingHours[day];
-      if (data is Map) {
+      if (data is Map && data.isNotEmpty) {
         _workingHours[day] = _DayHours(
           isOpen: data['is_open'] ?? true,
-          open: data['open'] ?? data['start'] ?? '09:00',
-          close: data['close'] ?? data['end'] ?? '18:00',
+          open: data['open'] ?? data['start'] ?? '00:00',
+          close: data['close'] ?? data['end'] ?? '23:59',
         );
       } else {
-        _workingHours[day] = _DayHours(
-          isOpen: day != 'friday',
-          open: day == 'friday' ? '10:00' : '09:00',
-          close: day == 'friday' ? '15:00' : '18:00',
+        _workingHours[day] = const _DayHours(
+          isOpen: true,
+          open: '00:00',
+          close: '23:59',
         );
       }
     }
+  }
+
+  bool get _is24HoursAllDays {
+    return _workingHours.values.every(
+      (h) => h.isOpen &&
+             (h.open == '00:00' || h.open == '0:00') &&
+             (h.close == '23:59' || h.close == '24:00' || h.close == '00:00'),
+    );
+  }
+
+  void _set24Hours(bool enable) {
+    setState(() {
+      for (final day in _dayOrder) {
+        if (enable) {
+          _workingHours[day] = const _DayHours(isOpen: true, open: '00:00', close: '23:59');
+        } else {
+          _workingHours[day] = const _DayHours(isOpen: true, open: '10:00', close: '22:00');
+        }
+      }
+    });
   }
 
   Future<void> _pickImage() async {
@@ -327,13 +347,32 @@ class _EditShopScreenState extends State<EditShopScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.schedule, color: Color(0xFFD4AF37), size: 20),
-                      SizedBox(width: 8),
-                      Text('ساعات العمل', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Row(
+                        children: [
+                          Icon(Icons.schedule, color: Color(0xFFD4AF37), size: 20),
+                          SizedBox(width: 8),
+                          Text('ساعات العمل', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      TextButton.icon(
+                        onPressed: () => _set24Hours(!_is24HoursAllDays),
+                        icon: Icon(
+                          _is24HoursAllDays ? Icons.check_circle : Icons.all_inclusive,
+                          color: const Color(0xFFD4AF37),
+                          size: 16,
+                        ),
+                        label: Text(
+                          _is24HoursAllDays ? '24 ساعة مفعل' : 'ضبط 24 ساعة',
+                          style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  _build24HoursBanner(),
                   const SizedBox(height: 16),
                   ..._dayOrder.map((day) => _buildDayRow(day)),
                 ],
@@ -346,9 +385,50 @@ class _EditShopScreenState extends State<EditShopScreen> {
     );
   }
 
+  Widget _build24HoursBanner() {
+    final is24 = _is24HoursAllDays;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: is24 ? const Color(0xFFD4AF37).withOpacity(0.15) : Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: is24 ? const Color(0xFFD4AF37) : Colors.white12,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.all_inclusive, color: Color(0xFFD4AF37), size: 20),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'مفتوح 24 ساعة يومياً (24/7)',
+                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'سهل على صاحب المحل بضغطة زر واحدة',
+                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: is24,
+            activeColor: const Color(0xFFD4AF37),
+            onChanged: (val) => _set24Hours(val),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDayRow(String day) {
     final h = _workingHours[day]!;
     final label = _dayNames[day] ?? day;
+    final is24Single = (h.open == '00:00' || h.open == '0:00') && (h.close == '23:59' || h.close == '24:00' || h.close == '00:00');
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -374,36 +454,58 @@ class _EditShopScreenState extends State<EditShopScreen> {
           ),
           const SizedBox(width: 8),
           if (h.isOpen) ...[
-            // Open time
-            GestureDetector(
-              onTap: () => _pickTime(day, true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF37).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+            if (is24Single)
+              GestureDetector(
+                onTap: () => _pickTime(day, true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4AF37).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.all_inclusive, color: Color(0xFFD4AF37), size: 14),
+                      SizedBox(width: 4),
+                      Text('24 ساعة', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 ),
-                child: Text(h.open, style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Text('-', style: TextStyle(color: Colors.white38)),
-            ),
-            // Close time
-            GestureDetector(
-              onTap: () => _pickTime(day, false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF37).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+              )
+            else ...[
+              // Open time
+              GestureDetector(
+                onTap: () => _pickTime(day, true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4AF37).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+                  ),
+                  child: Text(h.open, style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
-                child: Text(h.close, style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
               ),
-            ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Text('-', style: TextStyle(color: Colors.white38)),
+              ),
+              // Close time
+              GestureDetector(
+                onTap: () => _pickTime(day, false),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4AF37).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+                  ),
+                  child: Text(h.close, style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
           ] else
             Text('مغلق', style: TextStyle(color: Colors.red.shade300, fontSize: 12)),
         ],

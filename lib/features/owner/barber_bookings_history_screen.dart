@@ -195,7 +195,7 @@ class _BarberBookingsHistoryScreenState extends State<BarberBookingsHistoryScree
                                   const Text('إجمالي الأرباح', style: TextStyle(color: Colors.white70, fontSize: 14)),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${monthlyTotal.toStringAsFixed(0)} \$',
+                                    '${monthlyTotal.toStringAsFixed(0)} جنيه',
                                     style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                                   ),
                                 ],
@@ -282,7 +282,7 @@ class _BarberBookingsHistoryScreenState extends State<BarberBookingsHistoryScree
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    '${dailyTotal.toStringAsFixed(0)} \$',
+                                    '${dailyTotal.toStringAsFixed(0)} جنيه',
                                     style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold, fontSize: 12),
                                   ),
                                 ),
@@ -360,7 +360,7 @@ class _BarberBookingsHistoryScreenState extends State<BarberBookingsHistoryScree
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${booking.totalPrice} \$',
+                '${booking.totalPrice} جنيه',
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
